@@ -5,7 +5,7 @@ const Signup = () => {
   return (
     <div className="flex h-screen w-screen items-center justify-center">
       <SignUp
-        path="/sign-up"
+        routing="hash"
         redirectUrl={"/project/backlog"}
         signInUrl="/sign-in"
         appearance={{

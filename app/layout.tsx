@@ -1,4 +1,4 @@
-import { ClerkProvider } from "@clerk/nextjs/app-beta";
+import { ClerkProvider } from "@clerk/nextjs";
 import { type Metadata } from "next";
 import { siteConfig } from "@/config/site";
 import "@/styles/globals.css";

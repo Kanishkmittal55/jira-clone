@@ -3,7 +3,7 @@ import { type Metadata } from "next";
 import { getQueryClient } from "@/utils/get-query-client";
 import { dehydrate } from "@tanstack/query-core";
 import { Hydrate } from "@/utils/hydrate";
-import { currentUser } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
 import {
   getInitialIssuesFromServer,
   getInitialProjectFromServer,

@@ -7,7 +7,7 @@ import {
   ModalPortal,
 } from "@/components/ui/modal";
 import { useAuthModalContext } from "@/context/use-auth-modal";
-import { SignIn } from "@clerk/clerk-react";
+import { SignIn } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { MdClose } from "react-icons/md";
@@ -34,7 +34,7 @@ const AuthModal = () => {
             <MdClose />
           </ModalClose>
           <SignIn
-            // path="/sign-in"
+            routing="hash"
             redirectUrl={"/project/backlog"}
             signUpUrl="/sign-up"
             appearance={{

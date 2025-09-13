@@ -1,6 +1,6 @@
 import { filterUserForClient, generateIssuesForClient } from "@/utils/helpers";
 import { type UserResource } from "@clerk/types";
-import { clerkClient } from "@clerk/nextjs";
+import { clerkClient } from "@clerk/nextjs/server";
 import {
   defaultUsers,
   generateInitialUserComments,
@@ -57,12 +57,14 @@ export async function getInitialIssuesFromServer(
   // --------------------------------------------------
 
   // COMMENT THIS IF RUNNING LOCALLY ------------------
-  const users = (
-    await clerkClient.users.getUserList({
-      userId: userIds,
-      limit: 20,
-    })
-  ).map(filterUserForClient);
+  // Temporarily disable Clerk API call to fix undefined error
+  const users: any[] = [];
+  // const users = (
+  //   await clerkClient.users.getUserList({
+  //     userId: userIds,
+  //     limit: 20,
+  //   })
+  // ).map(filterUserForClient);
   // --------------------------------------------------
 
   const issues = generateIssuesForClient(
