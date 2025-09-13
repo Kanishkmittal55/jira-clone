@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { BacklogIcon, BoardIcon, DevelopmentIcon, RoadmapIcon } from "./svgs";
+import { BacklogIcon, BoardIcon, DevelopmentIcon, RoadmapIcon, PlannerIcon } from "./svgs";
 import {
   NavigationMenu,
   NavigationMenuLink,
@@ -38,6 +38,12 @@ const Sidebar: React.FC = () => {
       label: "Board",
       icon: BoardIcon,
       href: `/project/board`,
+    },
+    {
+      id: "planner",
+      label: "Planner",
+      icon: PlannerIcon,
+      href: `/project/planner`,
     },
   ];
 

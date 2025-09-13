@@ -80,6 +80,29 @@ const RoadmapIcon: React.FC<{ className?: string; size?: number }> = ({
   );
 };
 
+const PlannerIcon: React.FC<{ className?: string; size?: number }> = ({
+  className,
+  size,
+}) => {
+  return (
+    <svg
+      className={className}
+      width={size ?? 24}
+      height={size ?? 24}
+      viewBox="0 0 24 24"
+      role="presentation"
+    >
+      <g fill="currentColor">
+        <path d="M3 4h18a1 1 0 011 1v14a1 1 0 01-1 1H3a1 1 0 01-1-1V5a1 1 0 011-1zm1 2v12h16V6H4z"></path>
+        <path d="M7 8h2v2H7V8zm4 0h2v2h-2V8zm4 0h2v2h-2V8z"></path>
+        <path d="M7 12h2v2H7v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z"></path>
+        <path d="M7 16h2v2H7v-2zm4 0h2v2h-2v-2z"></path>
+        <path d="M5 2h2v4H5V2zm8 0h2v4h-2V2z"></path>
+      </g>
+    </svg>
+  );
+};
+
 const LightningIcon: React.FC<{ className?: string; size?: number }> = ({
   className,
   size,
@@ -484,4 +507,5 @@ export {
   AddPeopleIcon,
   SubTaskIcon,
   UnassignedUser,
+  PlannerIcon,
 };
