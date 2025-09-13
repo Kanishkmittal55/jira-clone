@@ -1,6 +1,6 @@
 import { type IssueCountType } from "./types";
 import { type IssueType } from "@/utils/types";
-import { type clerkClient } from "@clerk/nextjs";
+import { type clerkClient } from "@clerk/nextjs/server";
 import { type DefaultUser, type Issue } from "@prisma/client";
 
 type Value<T> = T extends Promise<infer U> ? U : T;

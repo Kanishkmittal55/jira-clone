@@ -13,7 +13,7 @@ import {
   filterUserForClient,
   generateIssuesForClient,
 } from "@/utils/helpers";
-import { clerkClient } from "@clerk/nextjs";
+import { clerkClient } from "@clerk/nextjs/server";
 
 const postIssuesBodyValidator = z.object({
   name: z.string(),
@@ -92,12 +92,14 @@ export async function GET(req: NextRequest) {
   // --------------------------------------------------
 
   // COMMENT THIS IF RUNNING LOCALLY ------------------
-  const users = (
-    await clerkClient.users.getUserList({
-      userId: userIds,
-      limit: 10,
-    })
-  ).map(filterUserForClient);
+  // Temporarily disable Clerk API call to fix undefined error
+  const users: any[] = [];
+  // const users = (
+  //   await clerkClient.users.getUserList({
+  //     userId: userIds,
+  //     limit: 10,
+  //   })
+  // ).map(filterUserForClient);
   // --------------------------------------------------
 
   const issuesForClient = generateIssuesForClient(

@@ -8,7 +8,7 @@ import {
 } from "@prisma/client";
 import { z } from "zod";
 import { type GetIssuesResponse } from "../route";
-import { clerkClient } from "@clerk/nextjs";
+import { clerkClient } from "@clerk/nextjs/server";
 import { filterUserForClient } from "@/utils/helpers";
 import { getAuth } from "@clerk/nextjs/server";
 

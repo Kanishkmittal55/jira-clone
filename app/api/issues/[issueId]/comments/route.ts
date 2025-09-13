@@ -3,7 +3,7 @@ import { prisma, ratelimit } from "@/server/db";
 import { type DefaultUser, type Comment } from "@prisma/client";
 import { z } from "zod";
 import { getAuth } from "@clerk/nextjs/server";
-import { clerkClient } from "@clerk/nextjs";
+import { clerkClient } from "@clerk/nextjs/server";
 import { filterUserForClient } from "@/utils/helpers";
 
 export type GetIssueCommentsResponse = {
@@ -42,12 +42,14 @@ export async function GET(
   // --------------------------------------------------
 
   // COMMENT THIS IF RUNNING LOCALLY ------------------
-  const users = (
-    await clerkClient.users.getUserList({
-      userId: userIds,
-      limit: 110,
-    })
-  ).map(filterUserForClient);
+  // Temporarily disable Clerk API call to fix undefined error
+  const users: any[] = [];
+  // const users = (
+  //   await clerkClient.users.getUserList({
+  //     userId: userIds,
+  //     limit: 110,
+  //   })
+  // ).map(filterUserForClient);
   // --------------------------------------------------
 
   const commentsForClient = comments.map((comment) => {

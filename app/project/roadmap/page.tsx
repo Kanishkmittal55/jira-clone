@@ -8,7 +8,7 @@ import {
   getInitialProjectFromServer,
   getInitialSprintsFromServer,
 } from "@/server/functions";
-import { currentUser } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
 
 export const metadata: Metadata = {
   title: "Roadmap",

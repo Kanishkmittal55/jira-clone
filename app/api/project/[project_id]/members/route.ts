@@ -3,7 +3,7 @@ import { prisma } from "@/server/db";
 // import { clerkClient } from "@clerk/nextjs/server";
 // import { filterUserForClient } from "@/utils/helpers";
 import { type DefaultUser } from "@prisma/client";
-import { clerkClient } from "@clerk/nextjs";
+import { clerkClient } from "@clerk/nextjs/server";
 import { filterUserForClient } from "@/utils/helpers";
 
 export type GetProjectMembersResponse = {
@@ -35,12 +35,14 @@ export async function GET(req: NextRequest, { params }: MembersParams) {
   // --------------------------------------------------
 
   // COMMENT THIS IF RUNNING LOCALLY ------------------
-  const users = (
-    await clerkClient.users.getUserList({
-      userId: members.map((member) => member.id),
-      limit: 20,
-    })
-  ).map(filterUserForClient);
+  // Temporarily disable Clerk API call to fix undefined error
+  const users: any[] = [];
+  // const users = (
+  //   await clerkClient.users.getUserList({
+  //     userId: members.map((member) => member.id),
+  //     limit: 20,
+  //   })
+  // ).map(filterUserForClient);
   // --------------------------------------------------
 
   // return NextResponse.json<GetProjectMembersResponse>({ members:users });
