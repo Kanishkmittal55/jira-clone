@@ -1,10 +1,11 @@
-import { ClerkProvider } from "@clerk/nextjs";
 import { type Metadata } from "next";
 import { siteConfig } from "@/config/site";
 import "@/styles/globals.css";
 import Toaster from "@/components/toast";
 import QueryProvider from "@/utils/provider";
 import { AuthModalProvider } from "@/context/use-auth-modal";
+import { SelectedProjectProvider } from "@/context/use-selected-project-context";
+import { ClientClerkProvider } from "@/components/providers/clerk-provider";
 import { AuthModal } from "@/components/modals/auth";
 
 export const metadata: Metadata = {
@@ -45,22 +46,25 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     <html lang="en">
       <head />
       <body>
-        <ClerkProvider>
-          <QueryProvider>
-            <AuthModalProvider>
-              <AuthModal />
-              <Toaster
-                position="bottom-left"
-                reverseOrder={false}
-                containerStyle={{
-                  height: "92vh",
-                  marginLeft: "3vw",
-                }}
-              />
-              {children}
-            </AuthModalProvider>
+        <ClientClerkProvider>  {/* Authentication context */}
+          <QueryProvider>      {/* Data fetching context */}
+            <SelectedProjectProvider>  {/* Project selection context */}
+              <AuthModalProvider>  {/* Modal state context */}
+                <AuthModal />      {/*  Modal component */}
+                {/* Toast notifications */}
+                <Toaster            
+                  position="bottom-left"
+                  reverseOrder={false}
+                  containerStyle={{
+                    height: "92vh",
+                    marginLeft: "3vw",
+                  }}
+                />
+                {children}        {/* All your app pages */}
+              </AuthModalProvider>
+            </SelectedProjectProvider>
           </QueryProvider>
-        </ClerkProvider>
+        </ClientClerkProvider>
       </body>
     </html>
   );

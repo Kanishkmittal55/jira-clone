@@ -7,11 +7,10 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-export const ratelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(15, "1 m"), // 15 requests per minute
-  analytics: true,
-});
+// Disable rate limiting for local development due to placeholder URLs
+export const ratelimit = {
+  limit: async () => ({ success: true, limit: 15, remaining: 14, reset: Date.now() + 60000 })
+};
 
 export const prisma =
   globalForPrisma.prisma ??

@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { AiFillGithub, AiFillStar } from "react-icons/ai";
 import { useFullURL } from "@/hooks/use-full-url";
 import { useEffect, useState } from "react";
+import { ProjectSelector } from "@/components/project/project-selector";
 
 const TopNavbar: React.FC = () => {
   const { user } = useUser();
@@ -35,6 +36,22 @@ const TopNavbar: React.FC = () => {
           alt="Jira logo"
           width={25}
           height={25}
+        />
+        <ProjectSelector
+          currentProject={{
+            id: "1",
+            key: "jira-clone",
+            name: "Jira Clone Project",
+            description: "Software project"
+          }}
+          projects={[
+            {
+              id: "1",
+              key: "jira-clone",
+              name: "Jira Clone Project",
+              description: "Software project"
+            }
+          ]}
         />
         <span className="text-sm font-medium text-gray-600">Jira Clone</span>
         <Button
@@ -71,7 +88,7 @@ const TopNavbar: React.FC = () => {
       ) : (
         <div className="flex items-center gap-x-3">
           <div className="rounded-sm bg-inprogress px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-600">
-            <SignInButton mode="modal" redirectUrl={url} />
+            <SignInButton mode="modal" fallbackRedirectUrl={url} />
           </div>
         </div>
       )}
