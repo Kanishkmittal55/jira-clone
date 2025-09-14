@@ -13,7 +13,7 @@ export const projectsRoutes = {
       `${baseUrl}/api/projects?key=JIRA-CLONE`,
       { signal }
     );
-    return data?.projects;
+    return data?.projects || [];
   },
   
   createProject: async (body: PostProjectBody) => {
