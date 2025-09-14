@@ -10,7 +10,7 @@ const baseUrl = getBaseUrl();
 export const projectsRoutes = {
   getProjects: async ({ signal }: { signal?: AbortSignal }) => {
     const { data } = await axios.get<GetProjectsResponse>(
-      `${baseUrl}/api/projects`,
+      `${baseUrl}/api/projects?key=JIRA-CLONE`,
       { signal }
     );
     return data?.projects;

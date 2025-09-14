@@ -18,8 +18,26 @@ export type GetProjectsResponse = {
   projects: Project[];
 };
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const projectId = searchParams.get("id");
+    const projectKey = searchParams.get("key");
+
+    // If specific project requested
+    if (projectId || projectKey) {
+      const project = await prisma.project.findFirst({
+        where: {
+          ...(projectId && { id: projectId }),
+          ...(projectKey && { key: projectKey }),
+          deletedAt: null,
+        },
+      });
+
+      return NextResponse.json({ project });
+    }
+
+    // Get all projects
     const projects = await prisma.project.findMany({
       where: {
         deletedAt: null,
@@ -91,7 +109,6 @@ export async function POST(request: NextRequest) {
         key: key.toUpperCase(),
         defaultAssignee,
         imageUrl,
-        // Add description if provided - note: you might need to add this field to schema
         ...(description && { description }),
       },
     });
