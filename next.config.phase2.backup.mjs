@@ -7,20 +7,9 @@
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
-  // Remove experimental serverActions (it's stable in Next.js 13.4+)
-  // experimental: {
-  //   serverActions: true,
-  // },
-  
-  // TEMPORARY: Bypass ESLint and TypeScript errors during build
-  // TODO: Remove after fixing all type errors
-  eslint: {
-    ignoreDuringBuilds: true,
+  experimental: {
+    serverActions: true,
   },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  
   redirects: async () => {
     return [
       {
@@ -44,5 +33,15 @@ const config = {
       "img.clerk.com",
     ],
   },
+  /**
+   * If you have the "experimental: { appDir: true }" setting enabled, then you
+   * must comment the below `i18n` config out.
+   *
+   * @see https://github.com/vercel/next.js/issues/41980
+   */
+  // i18n: {
+  //   locales: ["en"],
+  //   defaultLocale: "en",
+  // },
 };
 export default config;

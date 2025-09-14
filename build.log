@@ -1,0 +1,26 @@
+
+> jiraclone@0.1.0 build
+> next build
+
+   Creating an optimized production build ...
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (190kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+Browserslist: caniuse-lite is outdated. Please run:
+  npx browserslist@latest --update-db
+  Why you should do it regularly: https://github.com/browserslist/browserslist#browsers-data-updating
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+./app/api/goal-templates/route.ts:50:47
+Type error: Expected 0 arguments, but got 1.
+
+[0m [90m 48 | [39m  [36mtry[39m {[0m
+[0m [90m 49 | [39m    [90m// Rate limiting[39m[0m
+[0m[31m[1m>[22m[39m[90m 50 | [39m    [36mconst[39m { success } [33m=[39m [36mawait[39m ratelimit[33m.[39mlimit([32m"create-goal-template"[39m)[33m;[39m[0m
+[0m [90m    | [39m                                              [31m[1m^[22m[39m[0m
+[0m [90m 51 | [39m    [36mif[39m ([33m![39msuccess) {[0m
+[0m [90m 52 | [39m      [36mreturn[39m [33mNextResponse[39m[33m.[39mjson([0m
+[0m [90m 53 | [39m        { error[33m:[39m [32m"Rate limit exceeded"[39m }[33m,[39m[0m

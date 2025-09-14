@@ -2,7 +2,7 @@
 import { api } from "@/utils/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useProject } from "./use-project";
-import { GoalChannel } from "@prisma/client";
+import { type GoalChannel } from "@prisma/client";
 import { toast } from "react-hot-toast";
 
 export const useGoals = () => {
