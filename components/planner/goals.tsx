@@ -4,17 +4,11 @@ import { Button } from "@/components/ui/button";
 import { BiBullseye } from "react-icons/bi";
 import clsx from "clsx";
 import { useGoals } from "@/hooks/query-hooks/use-goals";
-
-interface Goal {
-  id: string;
-  title: string;
-  description: string;
-  priority: "HIGH" | "MEDIUM" | "LOW";
-  status: "DRAFT" | "ANALYZING" | "READY" | "GENERATED";
-}
+import { useSelectedGoalContext } from "@/context/use-selected-goal-context";
 
 const PlannerGoals: React.FC<{ className?: string }> = ({ className }) => {
   const { goals, isLoading } = useGoals();
+  const { goalId, setGoalId } = useSelectedGoalContext();
 
   const handleGeneratePlan = (goalId: string) => {
     console.log("Generating plan for goal:", goalId);
@@ -45,7 +39,16 @@ const PlannerGoals: React.FC<{ className?: string }> = ({ className }) => {
           </div>
         ) : (
           goals.map((goal) => (
-            <div key={goal.id} className="w-full p-4 border border-gray-200 rounded-lg bg-white hover:shadow-sm transition-shadow">
+            <div 
+              key={goal.id} 
+              role="button"
+              data-state={goalId === goal.id ? "selected" : "not-selected"}
+              onClick={() => setGoalId(goal.id)}
+              className={clsx(
+                "w-full p-4 border border-gray-200 rounded-lg bg-white hover:shadow-sm transition-shadow cursor-pointer",
+                "[&[data-state=selected]]:bg-blue-100 [&[data-state=selected]]:border-blue-300"
+              )}
+            >
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1">
                   <h3 className="font-medium text-gray-900 mb-1">{goal.title}</h3>
@@ -64,19 +67,25 @@ const PlannerGoals: React.FC<{ className?: string }> = ({ className }) => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-x-2 text-sm text-gray-500">
                   <BiBullseye className="h-4 w-4" />
-                  <span>Goal #{goal.id}</span>
+                  <span>Goal #{goal.id.slice(0, 8)}</span>
                 </div>
                 
                 <div className="flex gap-x-2">
                   <Button 
-                    onClick={() => handleUnderstandGoal(goal.id)}
-                    className="bg-blue-600 text-gray-900 hover:bg-blue-700 text-sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUnderstandGoal(goal.id);
+                    }}
+                    className="bg-blue-600 text-gray-900 hover:bg-purple-700 text-sm"
                   >
                     Understand Goal
                   </Button>
                   <Button 
-                    onClick={() => handleGeneratePlan(goal.id)}
-                    className="bg-blue-600 text-gray-900 hover:bg-blue-700 text-sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleGeneratePlan(goal.id);
+                    }}
+                    className="bbg-blue-600 text-gray-900 hover:bg-blue-700 text-sm"
                   >
                     Generate Plan
                   </Button>
