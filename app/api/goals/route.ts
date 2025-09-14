@@ -37,7 +37,6 @@ const patchGoalBodyValidator = z.object({
   audienceJson: z.record(z.any()).optional(),
   profileJson: z.record(z.any()).optional(),
   templateId: z.string().optional(),
-  activePlanId: z.string().optional(),
 });
 
 export type PatchGoalBody = z.infer<typeof patchGoalBodyValidator>;
@@ -67,7 +66,6 @@ export async function GET(request: NextRequest) {
       include: {
         project: true,
         template: true,
-        activePlan: true,
         contextSnapshots: {
           orderBy: { createdAt: "desc" },
           take: 1,
@@ -219,7 +217,6 @@ export async function PATCH(request: NextRequest) {
       include: {
         project: true,
         template: true,
-        activePlan: true,
       },
     });
 

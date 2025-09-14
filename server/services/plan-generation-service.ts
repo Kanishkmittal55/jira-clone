@@ -50,7 +50,17 @@ export class PlanGenerationService {
     });
 
     if (!template) {
-      throw new Error("Plan template not found");
+      console.log("⚠️ Plan template not found, using fallback template generation");
+      // For now, create a simple fallback plan without a template
+      return await this.generateFallbackPlan({
+        goalId,
+        assessmentId,
+        templateId,
+        userLevel,
+        timeboxDays,
+        constraints,
+        assessment,
+      });
     }
 
     // Calculate adaptations based on user level
@@ -596,5 +606,168 @@ export class PlanGenerationService {
       sprints: createdSprints,
       issues: createdIssues,
     };
+  }
+
+  /**
+   * Generate a simple fallback plan when no template is found
+   */
+  static async generateFallbackPlan(params: {
+    goalId: string;
+    assessmentId: string;
+    templateId: string;
+    userLevel: ExpertiseLevel;
+    timeboxDays: number;
+    constraints: Record<string, unknown>;
+    assessment: any;
+  }): Promise<GeneratedPlan> {
+    const {
+      goalId,
+      assessmentId,
+      templateId,
+      userLevel,
+      timeboxDays,
+      constraints,
+      assessment,
+    } = params;
+
+    console.log("🔄 Generating fallback plan for level:", userLevel);
+
+    // Create a basic plan structure
+    const plan = await prisma.generatedPlan.create({
+      data: {
+        assessmentId,
+        templateId,
+        goalId,
+        name: `${assessment.goal?.name || 'Learning'} Plan - ${userLevel}`,
+        description: `A personalized learning plan generated for ${userLevel} level learner`,
+        status: PlanStatus.DRAFT,
+        adjustedForUser: true,
+        estimatedHours: this.calculateEstimatedHours(userLevel, timeboxDays),
+        startDate: new Date(),
+        endDate: new Date(Date.now() + timeboxDays * 24 * 60 * 60 * 1000),
+        riskFactors: this.generateBasicRiskFactors(userLevel),
+        adaptations: this.generateBasicAdaptations(userLevel, constraints),
+      },
+    });
+
+    // Create basic plan items
+    await this.createFallbackPlanItems(plan.id, userLevel, timeboxDays);
+
+    console.log("✅ Fallback plan created:", plan.id);
+    return plan;
+  }
+
+  /**
+   * Calculate estimated hours based on user level and timeframe
+   */
+  private static calculateEstimatedHours(level: ExpertiseLevel, days: number): number {
+    const baseHoursPerDay = level === 'BEGINNER' ? 2 : level === 'INTERMEDIATE' ? 3 : 4;
+    return Math.min(baseHoursPerDay * days, days * 8); // Cap at 8 hours per day
+  }
+
+  /**
+   * Generate basic risk factors
+   */
+  private static generateBasicRiskFactors(level: ExpertiseLevel): any {
+    return {
+      timeConstraints: level === 'BEGINNER' ? 'high' : 'medium',
+      complexityRisk: level === 'BEGINNER' ? 'high' : 'low',
+      prerequisiteGaps: level === 'BEGINNER' ? 'medium' : 'low',
+    };
+  }
+
+  /**
+   * Generate basic adaptations
+   */
+  private static generateBasicAdaptations(level: ExpertiseLevel, constraints: Record<string, unknown>): any {
+    return {
+      pacing: level === 'BEGINNER' ? 'slower' : 'normal',
+      supportLevel: level === 'BEGINNER' ? 'high' : 'medium',
+      practiceEmphasis: level === 'BEGINNER' ? 'high' : 'normal',
+      constraints,
+    };
+  }
+
+  /**
+   * Create fallback plan items
+   */
+  private static async createFallbackPlanItems(planId: string, level: ExpertiseLevel, days: number): Promise<void> {
+    const phases = this.getFallbackPhases(level);
+    const itemsPerPhase = Math.max(2, Math.floor(days / phases.length / 7)); // At least 2 items per phase
+
+    for (let phaseIndex = 0; phaseIndex < phases.length; phaseIndex++) {
+      const phase = phases[phaseIndex];
+      
+      for (let itemIndex = 0; itemIndex < itemsPerPhase; itemIndex++) {
+        await prisma.generatedPlanItem.create({
+          data: {
+            planId,
+            type: itemIndex === 0 ? 'sprint' : 'issue',
+            name: `${phase.name} - ${itemIndex === 0 ? 'Sprint' : `Task ${itemIndex}`}`,
+            description: phase.description,
+            phase: phaseIndex + 1,
+            order: itemIndex,
+            estimatedHours: level === 'BEGINNER' ? 8 : 6,
+            difficulty: level,
+            dependencies: [],
+            metadata: {
+              phase: phase.name,
+              type: itemIndex === 0 ? 'sprint' : 'task',
+              fallbackGenerated: true,
+            },
+          },
+        });
+      }
+    }
+  }
+
+  /**
+   * Get fallback learning phases based on user level
+   */
+  private static getFallbackPhases(level: ExpertiseLevel) {
+    const basePhases = [
+      {
+        name: 'Foundation',
+        description: 'Build core understanding and fundamental concepts',
+      },
+      {
+        name: 'Practice',
+        description: 'Apply knowledge through guided exercises and examples',
+      },
+      {
+        name: 'Application',
+        description: 'Work on real-world scenarios and projects',
+      },
+    ];
+
+    if (level === 'BEGINNER') {
+      return [
+        {
+          name: 'Prerequisites',
+          description: 'Review essential background knowledge and setup',
+        },
+        ...basePhases,
+        {
+          name: 'Review',
+          description: 'Consolidate learning and address knowledge gaps',
+        },
+      ];
+    }
+
+    if (level === 'ADVANCED') {
+      return [
+        ...basePhases,
+        {
+          name: 'Advanced Topics',
+          description: 'Explore complex scenarios and edge cases',
+        },
+        {
+          name: 'Mastery',
+          description: 'Achieve expert-level proficiency and teach others',
+        },
+      ];
+    }
+
+    return basePhases; // INTERMEDIATE
   }
 }

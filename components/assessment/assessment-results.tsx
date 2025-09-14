@@ -69,7 +69,9 @@ export const AssessmentResults: React.FC<AssessmentResultsProps> = ({
   };
 
   return (
-    <div className={clsx("space-y-6", className)}>
+    <div className={clsx("h-full flex flex-col", className)}>
+      <div className="flex-1 overflow-y-auto px-6 py-4" style={{maxHeight: 'calc(90vh - 120px)'}}>
+        <div className="space-y-6">
       {/* Success Header */}
       <div className="bg-green-50 border border-green-200 rounded-lg p-6">
         <div className="flex items-start gap-4">
@@ -186,7 +188,7 @@ export const AssessmentResults: React.FC<AssessmentResultsProps> = ({
             Personalized Recommendations
           </h3>
           
-          <div className="space-y-3">
+          <div className="space-y-3 max-h-64 overflow-y-auto">
             {assessment.recommendations
               .sort((a, b) => a.priority - b.priority)
               .slice(0, 5)
@@ -249,11 +251,13 @@ export const AssessmentResults: React.FC<AssessmentResultsProps> = ({
         
         <Button
           onClick={onGeneratePlan}
-          className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+          className="bg-blue-600 hover:bg-blue-700 text-gray-900 flex items-center gap-2"
         >
           Generate Learning Plan
           <FiArrowRight className="h-4 w-4" />
         </Button>
+      </div>
+        </div>
       </div>
     </div>
   );

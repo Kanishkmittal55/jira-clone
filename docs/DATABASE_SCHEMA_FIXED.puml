@@ -1,0 +1,377 @@
+@startuml Database Schema Relations
+!theme aws-orange
+
+!define PRIMARY_KEY(x) <b><color:red>PK:</color> x</b>
+!define FOREIGN_KEY(x) <color:blue>FK:</color> x
+!define ENUM(x) <color:green>enum</color> x
+
+' ============= CORE PROJECT MANAGEMENT =============
+
+entity "Project" as Project {
+  PRIMARY_KEY(id: String)
+  key: String
+  name: String
+  defaultAssignee: String?
+  imageUrl: String?
+  createdAt: DateTime
+  updatedAt: DateTime?
+  deletedAt: DateTime?
+}
+
+entity "Member" as Member {
+  PRIMARY_KEY(id: String)
+  FOREIGN_KEY(projectId: String)
+}
+
+entity "Goal" as Goal {
+  PRIMARY_KEY(id: String)
+  FOREIGN_KEY(projectId: String)
+  title: String
+  niche: String?
+  channel: GoalChannel
+  description: String?
+  timeboxDays: Int
+  budgetUsd: Int
+  successMetric: String
+  constraints: Json
+  revenue: Json
+  deliverables: Json
+  FOREIGN_KEY(templateId: String?)
+  FOREIGN_KEY(activePlanId: String?)
+  createdBy: String
+}
+
+entity "GoalTemplate" as GoalTemplate {
+  PRIMARY_KEY(id: String)
+  name: String
+  promptText: String
+  outputSchema: Json
+  systemMsg: String?
+}
+
+' ============= SPRINT AND ISSUE MANAGEMENT =============
+
+entity "Sprint" as Sprint {
+  PRIMARY_KEY(id: String)
+  name: String
+  description: String
+  duration: String?
+  startDate: DateTime?
+  endDate: DateTime?
+  creatorId: String
+  status: SprintStatus
+  FOREIGN_KEY(roadmapId: String?)
+}
+
+entity "Issue" as Issue {
+  PRIMARY_KEY(id: String)
+  key: String
+  name: String
+  description: String?
+  status: IssueStatus
+  type: IssueType
+  sprintPosition: Float
+  boardPosition: Float
+  reporterId: String
+  assigneeId: String?
+  parentId: String?
+  FOREIGN_KEY(sprintId: String?)
+  creatorId: String
+}
+
+entity "Comment" as Comment {
+  PRIMARY_KEY(id: String)
+  content: String
+  authorId: String
+  FOREIGN_KEY(issueId: String)
+  logId: String?
+}
+
+entity "Roadmap" as Roadmap {
+  PRIMARY_KEY(id: String)
+  FOREIGN_KEY(goalId: String)
+  name: String
+  description: String?
+  status: String
+}
+
+' ============= PLAN MANAGEMENT =============
+
+entity "PlanVersion" as PlanVersion {
+  PRIMARY_KEY(id: String)
+  FOREIGN_KEY(goalId: String)
+  status: String
+  p50Hours: Float?
+  p90Hours: Float?
+  successProb: Float?
+}
+
+entity "PromptRun" as PromptRun {
+  PRIMARY_KEY(id: String)
+  FOREIGN_KEY(goalId: String)
+  FOREIGN_KEY(planVersionId: String?)
+  model: String
+  temperature: Float
+  promptText: String
+  tokensIn: Int
+  tokensOut: Int
+  costUsd: Float
+}
+
+' ============= RESEARCH AND CONTEXT =============
+
+entity "GoalContextSnapshot" as GoalContextSnapshot {
+  PRIMARY_KEY(id: String)
+  FOREIGN_KEY(goalId: String)
+  repoSnapshotId: String?
+  summary: String
+  keywords: String[]
+  risks: String?
+  competitors: Json?
+  sourcesCount: Int
+}
+
+entity "ResearchSource" as ResearchSource {
+  PRIMARY_KEY(id: String)
+  FOREIGN_KEY(snapshotId: String)
+  url: String
+  title: String
+  publishedAt: DateTime?
+  relevance: Float
+  excerpt: String?
+}
+
+' ============= ASSESSMENT SYSTEM =============
+
+entity "KnowledgeAssessment" as KnowledgeAssessment {
+  PRIMARY_KEY(id: String)
+  FOREIGN_KEY(goalId: String)
+  userId: String
+  channel: GoalChannel
+  overallLevel: ExpertiseLevel
+  status: AssessmentStatus
+  completedAt: DateTime?
+  expiresAt: DateTime?
+  score: Float?
+  confidence: Float?
+  timeSpent: Int?
+}
+
+entity "AssessmentTemplate" as AssessmentTemplate {
+  PRIMARY_KEY(id: String)
+  name: String
+  channel: GoalChannel
+  description: String?
+  version: String
+  isActive: Boolean
+  minQuestions: Int
+  maxQuestions: Int
+  timeLimit: Int?
+  passingScore: Float
+}
+
+entity "AssessmentQuestion" as AssessmentQuestion {
+  PRIMARY_KEY(id: String)
+  FOREIGN_KEY(templateId: String)
+  domain: KnowledgeDomain
+  questionText: String
+  questionType: QuestionType
+  isRequired: Boolean
+  order: Int
+  weight: Float
+  options: Json?
+  validationRules: Json?
+  helpText: String?
+  dependsOn: String?
+  dependsOnAnswer: Json?
+}
+
+entity "AssessmentResponse" as AssessmentResponse {
+  PRIMARY_KEY(id: String)
+  FOREIGN_KEY(assessmentId: String)
+  FOREIGN_KEY(questionId: String)
+  answer: Json
+  score: Float?
+  timeSpent: Int?
+  confidence: Float?
+}
+
+entity "QuestionScoringRule" as QuestionScoringRule {
+  PRIMARY_KEY(id: String)
+  FOREIGN_KEY(questionId: String)
+  condition: Json
+  score: Float
+  feedback: String?
+}
+
+entity "DomainExpertise" as DomainExpertise {
+  PRIMARY_KEY(id: String)
+  FOREIGN_KEY(assessmentId: String)
+  domain: KnowledgeDomain
+  level: ExpertiseLevel
+  score: Float
+  confidence: Float
+  details: Json?
+}
+
+entity "AssessmentRecommendation" as AssessmentRecommendation {
+  PRIMARY_KEY(id: String)
+  FOREIGN_KEY(assessmentId: String)
+  domain: KnowledgeDomain
+  type: String
+  title: String
+  description: String
+  priority: Int
+  url: String?
+  estimatedTime: Int?
+}
+
+' ============= PLAN GENERATION SYSTEM =============
+
+entity "PlanTemplate" as PlanTemplate {
+  PRIMARY_KEY(id: String)
+  name: String
+  channel: GoalChannel
+  FOREIGN_KEY(templateId: String)
+  description: String?
+  minExpertise: ExpertiseLevel
+  maxExpertise: ExpertiseLevel
+  typicalDuration: Int
+  sprintCount: Int
+  successRate: Float?
+  version: String
+  isActive: Boolean
+  structure: Json
+  prerequisites: Json?
+  deliverables: Json
+  milestones: Json?
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+entity "PlanActivity" as PlanActivity {
+  PRIMARY_KEY(id: String)
+  FOREIGN_KEY(templateId: String)
+  name: String
+  description: String
+  type: String
+  phase: Int
+  order: Int
+  estimatedHours: Float
+  difficulty: ExpertiseLevel
+  dependencies: String[]
+  resources: Json?
+  successCriteria: Json
+}
+
+entity "GeneratedPlan" as GeneratedPlan {
+  PRIMARY_KEY(id: String)
+  FOREIGN_KEY(assessmentId: String)
+  FOREIGN_KEY(templateId: String)
+  FOREIGN_KEY(goalId: String)
+  name: String
+  description: String?
+  status: PlanStatus
+  adjustedForUser: Boolean
+  estimatedHours: Float
+  actualHours: Float?
+  startDate: DateTime?
+  endDate: DateTime?
+  completionRate: Float
+  successProbability: Float?
+  riskFactors: Json?
+  adaptations: Json?
+  approvedAt: DateTime?
+  approvedBy: String?
+  executedAt: DateTime?
+  completedAt: DateTime?
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+entity "GeneratedPlanItem" as GeneratedPlanItem {
+  PRIMARY_KEY(id: String)
+  FOREIGN_KEY(planId: String)
+  type: String
+  parentId: String?
+  name: String
+  description: String
+  phase: Int
+  order: Int
+  estimatedHours: Float
+  actualHours: Float?
+  difficulty: ExpertiseLevel
+  status: String
+  assignedTo: String?
+  startDate: DateTime?
+  endDate: DateTime?
+  completedAt: DateTime?
+  metadata: Json?
+  dependencies: String[]
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+entity "PlanMetric" as PlanMetric {
+  PRIMARY_KEY(id: String)
+  FOREIGN_KEY(planId: String)
+  name: String
+  value: Float
+  unit: String?
+  category: String
+  timestamp: DateTime
+}
+
+' ============= RELATIONSHIPS =============
+
+' Core Project Structure
+Project ||--o{ Member : "has"
+Project ||--o{ Goal : "contains"
+
+' Goal Relationships
+Goal }o--|| GoalTemplate : "uses"
+Goal ||--o{ GoalContextSnapshot : "has"
+Goal ||--o{ PromptRun : "generates"
+Goal ||--o{ PlanVersion : "has"
+Goal ||--o{ Roadmap : "may have"
+Goal ||--o{ KnowledgeAssessment : "assessed by"
+
+' Sprint and Issue Structure
+Roadmap ||--o{ Sprint : "contains"
+Sprint ||--o{ Issue : "contains"
+Issue ||--o{ Comment : "has"
+
+' Plan Management
+Goal }o--o| PlanVersion : "active"
+PlanVersion ||--o{ PromptRun : "generated by"
+
+' Research Structure
+GoalContextSnapshot ||--o{ ResearchSource : "contains"
+
+' Assessment System Relationships
+KnowledgeAssessment }o--|| Goal : "assesses"
+KnowledgeAssessment ||--o{ AssessmentResponse : "contains"
+KnowledgeAssessment ||--o{ DomainExpertise : "generates"
+KnowledgeAssessment ||--o{ AssessmentRecommendation : "provides"
+KnowledgeAssessment ||--o{ GeneratedPlan : "generates"
+
+' Assessment Template System
+AssessmentTemplate ||--o{ AssessmentQuestion : "contains"
+AssessmentTemplate ||--o{ PlanTemplate : "links to"
+
+' Question System
+AssessmentQuestion ||--o{ AssessmentResponse : "answered by"
+AssessmentQuestion ||--o{ QuestionScoringRule : "scored by"
+
+' Plan Generation Relationships
+PlanTemplate }o--|| AssessmentTemplate : "based on"
+PlanTemplate ||--o{ PlanActivity : "contains"
+PlanTemplate ||--o{ GeneratedPlan : "generates"
+
+' Generated Plan Structure
+GeneratedPlan }o--|| KnowledgeAssessment : "based on"
+GeneratedPlan }o--|| PlanTemplate : "uses"
+GeneratedPlan ||--o{ GeneratedPlanItem : "contains"
+GeneratedPlan ||--o{ PlanMetric : "tracked by"
+
+@enduml

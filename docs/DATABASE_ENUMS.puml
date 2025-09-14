@@ -1,0 +1,110 @@
+@startuml Database Enums
+!theme aws-orange
+title Database Schema Enums
+
+package "Enums" {
+  enum GoalChannel {
+    TRADING
+    YOUTUBE
+    NEWSLETTER
+    NOTION_TEMPLATE
+    CLI
+    EXTENSION
+    SEO
+    MICROSaaS
+  }
+
+  enum ExpertiseLevel {
+    BEGINNER
+    NOVICE
+    INTERMEDIATE
+    ADVANCED
+    EXPERT
+  }
+
+  enum AssessmentStatus {
+    NOT_STARTED
+    IN_PROGRESS
+    COMPLETED
+    EXPIRED
+  }
+
+  enum QuestionType {
+    SINGLE_CHOICE
+    MULTIPLE_CHOICE
+    SCALE
+    TEXT
+    BOOLEAN
+    NUMERIC
+  }
+
+  enum KnowledgeDomain {
+    MARKET_ANALYSIS
+    RISK_MANAGEMENT
+    TECHNICAL_ANALYSIS
+    TRADING_PSYCHOLOGY
+    CONTENT_CREATION
+    VIDEO_EDITING
+    AUDIENCE_BUILDING
+    PROGRAMMING
+    SYSTEM_DESIGN
+    DEPLOYMENT
+    MARKETING
+    SEO_OPTIMIZATION
+    DATA_ANALYSIS
+    PROJECT_MANAGEMENT
+    BUSINESS_STRATEGY
+  }
+
+  enum PlanStatus {
+    DRAFT
+    REVIEWED
+    APPROVED
+    EXECUTING
+    COMPLETED
+    ABANDONED
+  }
+
+  enum SprintStatus {
+    PLANNED
+    ACTIVE
+    COMPLETED
+    CANCELLED
+  }
+
+  enum IssueStatus {
+    TODO
+    IN_PROGRESS
+    DONE
+  }
+
+  enum IssueType {
+    BUG
+    TASK
+    SUBTASK
+    STORY
+    EPIC
+  }
+}
+
+note right of GoalChannel
+  Defines the different channels/domains
+  where goals can be applied
+end note
+
+note right of ExpertiseLevel
+  User skill levels from beginner
+  to expert across all domains
+end note
+
+note right of AssessmentStatus
+  Tracks the current state of
+  knowledge assessments
+end note
+
+note right of PlanStatus
+  Lifecycle status of generated
+  learning plans
+end note
+
+@enduml

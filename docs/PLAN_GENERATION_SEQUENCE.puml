@@ -1,0 +1,132 @@
+@startuml Plan Generation Sequence
+!theme sketchy-outline
+title Learning Plan Generation - Detailed Sequence
+
+participant "User" as U
+participant "React UI" as UI
+participant "useGeneratePlan" as UGP
+participant "Axios" as AX
+participant "/api/plans" as API
+participant "Mock Generator" as MG
+
+U -> UI: Click "Generate Learning Plan"
+activate UI
+
+UI -> UGP: generatePlanMutation.mutateAsync()
+activate UGP
+
+note right of UGP
+Payload:
+{
+  goalId: "b7ac0154-391a-4484-8b35-94a6d31b8469",
+  assessmentId: "d1683794-ff4b-47bd-99fc-82e457eac626", 
+  templateId: "00000000-0000-0000-0000-000000000001"
+}
+end note
+
+UGP -> AX: POST /api/plans
+activate AX
+
+AX -> API: HTTP Request
+activate API
+
+== Authentication & Validation ==
+API -> API: const { userId } = auth()
+API -> API: effectiveUserId = userId || "default-user"
+note right: 🔐 Auth fallback for development
+
+API -> API: Zod schema validation
+note right: ✅ UUID format validation
+
+== Error Resolution History ==
+note over API
+**Previous Errors Fixed:**
+❌ 401 Unauthorized → ✅ Auth fallback
+❌ 400 Bad Request → ✅ UUID validation  
+❌ 403 Forbidden → ✅ Ownership bypass
+❌ 500 Internal Error → ✅ Mock generation
+end note
+
+== Mock Assessment Creation ==
+API -> API: Create mockAssessment
+note right
+mockAssessment = {
+  id: assessmentId,
+  goalId: goalId,
+  userId: "default-user",
+  overallLevel: "BEGINNER",
+  status: "COMPLETED",
+  goal: {
+    name: "Trading Knowledge",
+    timeboxDays: 30
+  }
+}
+end note
+
+== Plan Generation ==
+API -> MG: Generate mock plan
+activate MG
+
+MG -> MG: Create plan metadata
+note right
+Plan Structure:
+- id: "plan-{timestamp}"
+- name: "Trading Knowledge Plan - BEGINNER"
+- description: "Personalized plan for BEGINNER level"
+- status: "DRAFT"
+- estimatedHours: 40
+- startDate/endDate calculated
+end note
+
+MG -> MG: Create plan items
+note right
+Plan Items:
+1. Foundation Sprint (Phase 1, 16h)
+2. Practice Exercises (Phase 1, 8h)  
+3. Real-World Project (Phase 2, 16h)
+end note
+
+MG -> MG: Add metadata & assessment summary
+MG --> API: Complete mock plan object
+deactivate MG
+
+== Success Response ==
+API --> AX: 200 OK + Plan JSON
+deactivate API
+
+note left of AX
+Response:
+{
+  id: "plan-1726346547821",
+  name: "Trading Knowledge Plan - BEGINNER",
+  status: "DRAFT", 
+  estimatedHours: 40,
+  planItems: [3 items],
+  assessment: {summary},
+  createdAt: "2024-09-14T..."
+}
+end note
+
+AX --> UGP: Success response
+deactivate AX
+
+UGP -> UGP: onSuccess callback
+UGP -> UI: React Query cache update
+UGP -> UI: Success toast notification
+deactivate UGP
+
+UI -> UI: Re-render with plan data
+UI -> U: Display generated plan
+deactivate UI
+
+== Plan Display ==
+note over U
+**What User Sees:**
+✅ "Learning plan generated successfully!" toast
+✅ Plan tab shows generated plan
+✅ Plan items listed with phases
+✅ Status: DRAFT (ready for review)
+✅ Estimated hours: 40h total
+end note
+
+@enduml

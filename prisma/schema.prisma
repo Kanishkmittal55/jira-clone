@@ -5,6 +5,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "./ERD.svg" // or "./docs/ERD.svg", can be .svg | .png | .pdf | .mmd
+}
+
 datasource db {
   provider     = "postgresql"
   url          = env("DATABASE_URL")
@@ -166,15 +171,11 @@ model Goal {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   templateId    String?
-  activePlanId  String?
 
   // Relations
   project          Project               @relation(fields: [projectId], references: [id])
   template         GoalTemplate?         @relation(fields: [templateId], references: [id])
-  activePlan       PlanVersion?          @relation("ActivePlan", fields: [activePlanId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   contextSnapshots GoalContextSnapshot[]
-  promptRuns       PromptRun[]
-  planVersions     PlanVersion[]         @relation("GoalPlanVersions")
   Roadmap          Roadmap?
   assessments      KnowledgeAssessment[]
 
@@ -228,46 +229,7 @@ model ResearchSource {
   @@index([snapshotId])
 }
 
-model PromptRun {
-  id            String   @id @default(uuid())
-  goalId        String
-  planVersionId String?
-  model         String
-  temperature   Float    @default(0.2)
-  promptText    String   @db.Text()
-  schemaName    String?
-  tokensIn      Int
-  tokensOut     Int
-  durationMs    Int
-  costUsd       Float
-  parseOk       Boolean
-  outputJson    Json?
-  createdAt     DateTime @default(now())
 
-  // Relations
-  goal        Goal         @relation(fields: [goalId], references: [id])
-  planVersion PlanVersion? @relation(fields: [planVersionId], references: [id])
-
-  @@index([goalId])
-  @@index([planVersionId])
-}
-
-model PlanVersion {
-  id          String   @id @default(uuid())
-  goalId      String
-  status      String   @default("ACTIVE")
-  p50Hours    Float?
-  p90Hours    Float?
-  successProb Float?
-  createdAt   DateTime @default(now())
-
-  // Relations
-  goal        Goal        @relation("GoalPlanVersions", fields: [goalId], references: [id])
-  activeGoals Goal[]      @relation("ActivePlan")
-  promptRuns  PromptRun[]
-
-  @@index([goalId])
-}
 
 // Add Roadmap model
 model Roadmap {

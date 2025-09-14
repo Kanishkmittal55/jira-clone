@@ -18,7 +18,6 @@ const patchGoalBodyValidator = z.object({
   audienceJson: z.record(z.any()).optional(),
   profileJson: z.record(z.any()).optional(),
   templateId: z.string().optional(),
-  activePlanId: z.string().optional(),
 });
 
 export type PatchGoalBody = z.infer<typeof patchGoalBodyValidator>;
@@ -27,10 +26,7 @@ export type GetGoalResponse = {
   goal: Goal & {
     project: any;
     template: any;
-    activePlan: any;
     contextSnapshots: any[];
-    promptRuns: any[];
-    planVersions: any[];
   };
 };
 
@@ -55,7 +51,6 @@ export async function GET(
       include: {
         project: true,
         template: true,
-        activePlan: true,
         contextSnapshots: {
           orderBy: { createdAt: "desc" },
           include: {
@@ -63,12 +58,6 @@ export async function GET(
               orderBy: { relevance: "desc" },
             },
           },
-        },
-        promptRuns: {
-          orderBy: { createdAt: "desc" },
-        },
-        planVersions: {
-          orderBy: { createdAt: "desc" },
         },
       },
     });
@@ -146,7 +135,6 @@ export async function PATCH(
       include: {
         project: true,
         template: true,
-        activePlan: true,
         contextSnapshots: {
           orderBy: { createdAt: "desc" },
           take: 1,

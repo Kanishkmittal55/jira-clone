@@ -81,7 +81,7 @@ const PlannerHeader: React.FC<{ projectKey: string | null }> = ({ projectKey }) 
               <Button 
                 onClick={handleAddGoal} 
                 disabled={createGoalMutation.isLoading}
-                className="bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                className="bg-blue-600 text-gray-900 hover:bg-blue-700 disabled:opacity-50"
               >
                 {createGoalMutation.isLoading ? "Creating..." : "Add Goal"}
               </Button>

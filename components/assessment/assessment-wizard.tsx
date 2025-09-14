@@ -289,11 +289,13 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   if (showResults && isAssessmentComplete) {
     console.log("🏆 Rendering results view");
     return (
-      <AssessmentResults
-        assessment={assessment}
-        onReset={handleReset}
-        className={className}
-      />
+      <div className={clsx("h-full flex flex-col", className)}>
+        <AssessmentResults
+          assessment={assessment}
+          onReset={handleReset}
+          className="flex-1 min-h-0"
+        />
+      </div>
     );
   }
 

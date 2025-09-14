@@ -16,6 +16,10 @@ interface GoalDetailsProps {
 const GoalDetails: React.FC<GoalDetailsProps> = ({ goal, defaultTab = "overview", onClose }) => {
   const [activeTab, setActiveTab] = useState(defaultTab);
 
+  // Move hooks to component level to avoid conditional hook calls
+  const { plans, isLoading: plansLoading } = usePlans(goal.id);
+  const generatePlanMutation = useGeneratePlan();
+
   // Sync activeTab with defaultTab changes
   useEffect(() => {
     setActiveTab(defaultTab);
@@ -117,22 +121,19 @@ const GoalDetails: React.FC<GoalDetailsProps> = ({ goal, defaultTab = "overview"
   );
 
   const renderAssessment = () => (
-    <div className="h-full">
+    <div className="h-full flex flex-col">
       <AssessmentWizard 
         goalId={goal.id}
         onComplete={() => {
           // Handle assessment completion
           console.log("Assessment completed for goal:", goal.id);
         }}
-        className="h-full"
+        className="flex-1 min-h-0"
       />
     </div>
   );
 
   const renderPlan = () => {
-    const { plans, isLoading: plansLoading } = usePlans(goal.id);
-    const generatePlanMutation = useGeneratePlan();
-    
     // Find the latest plan for this goal
     const latestPlan = plans.find((plan: any) => plan.goalId === goal.id);
     
@@ -158,16 +159,11 @@ const GoalDetails: React.FC<GoalDetailsProps> = ({ goal, defaultTab = "overview"
           throw new Error("Assessment must be completed before generating a plan");
         }
         
-        // Get available templates
-        const templatesResponse = await fetch(`/api/plan-templates?channel=${goal.channel}`);
-        let templateId = "default-template-id"; // Fallback
+        // Use a hardcoded UUID template for now since plan-templates endpoint doesn't exist
+        let templateId = "00000000-0000-0000-0000-000000000001"; // Valid UUID fallback
         
-        if (templatesResponse.ok) {
-          const templates = await templatesResponse.json();
-          if (templates && templates.length > 0) {
-            templateId = templates[0].id;
-          }
-        }
+        // TODO: Implement plan-templates API endpoint when templates are available
+        console.log("📋 Using default template ID for channel:", goal.channel);
         
         // Generate the plan
         await generatePlanMutation.mutateAsync({
@@ -340,7 +336,7 @@ const GoalDetails: React.FC<GoalDetailsProps> = ({ goal, defaultTab = "overview"
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-y-auto px-6 py-6">
+      <div className="flex-1 overflow-hidden min-h-0">
         {renderTabContent()}
       </div>
     </div>

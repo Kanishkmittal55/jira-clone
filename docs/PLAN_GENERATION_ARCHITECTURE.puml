@@ -1,0 +1,121 @@
+@startuml Plan Generation Architecture
+!theme carbon-gray
+title Learning Plan Generation - Technical Architecture
+
+package "Frontend (React)" {
+  component "GoalDetails.tsx" as GD {
+    [handleGeneratePlan()]
+    [renderPlan()]
+  }
+  
+  component "use-plans.ts" as UP {
+    [useGeneratePlan()]
+    [usePlans()]
+  }
+  
+  component "plans.ts API Utils" as PAU {
+    [generatePlan()]
+    [getPlans()]
+  }
+}
+
+package "Backend (Next.js API)" {
+  component "/api/plans" as PA {
+    [POST: Generate Plan]
+    [GET: Fetch Plans]
+  }
+  
+  component "/api/assessments" as AA {
+    [GET: Get Assessment]
+  }
+  
+  component "Auth Handler" as AH {
+    [auth() fallback]
+    [effectiveUserId]
+  }
+  
+  component "Mock Plan Generator" as MPG {
+    [createMockPlan()]
+    [createPlanItems()]
+  }
+}
+
+package "Data Layer" {
+  database "Prisma Models\n(Partial)" as PM {
+    [KnowledgeAssessment ✓]
+    [GeneratedPlan ❌]
+    [PlanTemplate ❌]
+  }
+  
+  storage "Mock Data" as MD {
+    [Assessment Mock]
+    [Plan Mock]
+    [Plan Items Mock]
+  }
+}
+
+' Frontend Flow
+GD --> UP: "generatePlanMutation.mutateAsync()"
+UP --> PAU: "api.plans.generatePlan()"
+PAU --> PA: "POST /api/plans"
+
+' Backend Flow
+PA --> AH: "auth() validation"
+PA --> MPG: "Generate mock plan"
+MPG --> MD: "Create mock objects"
+
+' Response Flow
+MD --> MPG: "Mock plan data"
+MPG --> PA: "Plan JSON"
+PA --> PAU: "200 OK + Plan"
+PAU --> UP: "Success response"
+UP --> GD: "Plan generated"
+
+' Error Recovery Paths
+PA --> PA: "401 → fallback user"
+PA --> PA: "400 → UUID validation"
+PA --> PA: "403 → bypass ownership"
+PA --> PA: "500 → mock generation"
+
+note right of MPG
+  **Mock Plan Structure:**
+  {
+    id: "plan-{timestamp}",
+    name: "Trading Plan - BEGINNER",
+    status: "DRAFT",
+    estimatedHours: 40,
+    planItems: [
+      {
+        name: "Foundation Sprint",
+        phase: 1,
+        estimatedHours: 16,
+        type: "sprint"
+      },
+      {
+        name: "Practice Exercises", 
+        phase: 1,
+        estimatedHours: 8,
+        type: "issue"
+      },
+      {
+        name: "Real-World Project",
+        phase: 2, 
+        estimatedHours: 16,
+        type: "issue"
+      }
+    ]
+  }
+end note
+
+note left of PM
+  **Database Status:**
+  ✅ KnowledgeAssessment exists
+  ❌ GeneratedPlan missing
+  ❌ PlanTemplate missing
+  
+  **Solution:**
+  Mock API bypasses DB
+  for plan generation
+end note
+
+@enduml
