@@ -1,19 +1,13 @@
 /**
  * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
- * This is especially useful for Docker builds.
  */
 !process.env.SKIP_ENV_VALIDATION && (await import("./env.mjs"));
 
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
-  // Remove experimental serverActions (it's stable in Next.js 13.4+)
-  // experimental: {
-  //   serverActions: true,
-  // },
   
-  // TEMPORARY: Bypass ESLint and TypeScript errors during build
-  // TODO: Remove after fixing all type errors
+  // Temporary: Allow build with linting errors
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -35,14 +29,32 @@ const config = {
       },
     ];
   },
+  
+  // Updated image configuration for Next.js 14
   images: {
-    domains: [
-      "images.clerk.dev",
-      "www.gravatar.com",
-      "images.unsplash.com",
-      "avatars.githubusercontent.com",
-      "img.clerk.com",
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.clerk.dev',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.gravatar.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.clerk.com',
+      },
     ],
   },
 };
+
 export default config;
